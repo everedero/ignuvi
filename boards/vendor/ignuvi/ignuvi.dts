@@ -112,6 +112,15 @@
 	status = "okay";
 };
 
+/* ATSAMR21E18A RESETn: release the radio MCU from reset */
+&gpiob {
+	samr21_reset_release {
+		gpio-hog;
+		gpios = <0 GPIO_ACTIVE_HIGH>;
+		output-high;
+	};
+};
+
 /* Optotriac cathode switch: keep it off until firmware drives the triac */
 &gpioc {
 	opto_cathode_off {

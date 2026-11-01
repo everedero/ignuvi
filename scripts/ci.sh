@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # CI: Zephyr compliance checks that apply to this repo, then the twister tests
-# on ignuvi (build only) and native_sim/native/ignuvi (built and run).
+# on ignuvi and ignuvi_radio (build only) and native_sim/native/ignuvi (built and run).
 #
 #   scripts/ci.sh [commit range]    default HEAD~1..HEAD
 #   HW=1 scripts/ci.sh              also run them on the board (ST-LINK VCP)
@@ -38,7 +38,7 @@ done
 hw=()
 [ "${HW:-}" ] && hw=(--device-testing --device-serial /dev/ttyACM0
 	--device-serial-baud 2000000 --retry-failed 2 -j 1)
-(cd "$WS" && west twister -T ignuvi -p ignuvi -p native_sim/native/ignuvi \
+(cd "$WS" && west twister -T ignuvi -p ignuvi -p ignuvi_radio -p native_sim/native/ignuvi \
 	-O "$OUT/twister" --inline-logs ${skip[@]+"${skip[@]}"} ${hw[@]+"${hw[@]}"}) || rc=1
 
 exit $rc

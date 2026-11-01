@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+
+board:
+  name: ignuvi_radio
+  full_name: Ignuvi ATSAMR21E18A radio MCU
+  vendor: vendor
+  socs:
+    - name: samr21e18a

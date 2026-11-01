@@ -1,0 +1,13 @@
+identifier: ignuvi_radio
+name: Ignuvi ATSAMR21E18A radio MCU
+type: mcu
+arch: arm
+ram: 32
+flash: 256
+toolchain:
+  - zephyr
+supported:
+  - gpio
+  - uart
+  - netif
+vendor: vendor

@@ -1,0 +1,8 @@
+sample:
+  name: SAMR21 radio scan
+tests:
+  ignuvi.radio_scan:
+    build_only: true
+    platform_allow:
+      - ignuvi_radio
+    tags: ieee802154

@@ -1,0 +1,95 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * ATSAMR21E18A on the ignuvi board. Pinout first-pass, see README.
+ * PA06-PA09 (SERCOM0, maybe on the STM32 SPI1 flash bus) and PA18
+ * stay unconfigured inputs until the wiring is verified.
+ */
+
+/dts-v1/;
+#include <atmel/samr21.dtsi>
+#include <atmel/samx2xx18.dtsi>
+#include <dt-bindings/pinctrl/samr21e-pinctrl.h>
+
+/ {
+	model = "Ignuvi ATSAMR21E18A radio MCU";
+	compatible = "vendor,ignuvi-radio", "atmel,samr21e18a", "atmel,samr21";
+
+	chosen {
+		zephyr,console = &sercom3;
+		zephyr,shell-uart = &sercom3;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,ieee802154 = &ieee802154;
+	};
+};
+
+&cpu0 {
+	clock-frequency = <48000000>;
+};
+
+&pinctrl {
+	/* "UART" test points. They may be USB D-/D+ (PA24G/PA25G) instead */
+	sercom3_uart_default: sercom3_uart_default {
+		group1 {
+			pinmux = <PA24C_SERCOM3_PAD2>,
+				 <PA25C_SERCOM3_PAD3>;
+		};
+	};
+
+	/* Internal AT86RF233 bus, identical on every SAMR21 */
+	sercom4_spi_default: sercom4_spi_default {
+		group1 {
+			pinmux = <PC19F_SERCOM4_PAD0>,
+				 <PB31F_SERCOM4_PAD1>,
+				 <PB30F_SERCOM4_PAD2>,
+				 <PC18F_SERCOM4_PAD3>;
+		};
+	};
+};
+
+/* Console: TX PA24 (PAD2), RX PA25 (PAD3) */
+&sercom3 {
+	status = "okay";
+	compatible = "atmel,sam0-uart";
+	current-speed = <115200>;
+	rxpo = <3>;
+	txpo = <1>;
+
+	pinctrl-0 = <&sercom3_uart_default>;
+	pinctrl-names = "default";
+};
+
+/* Copied from samr21_xpro: the radio die is bonded the same way */
+&sercom4 {
+	status = "okay";
+	compatible = "atmel,sam0-spi";
+	dipo = <0>;
+	dopo = <1>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	pinctrl-0 = <&sercom4_spi_default>;
+	pinctrl-names = "default";
+
+	cs-gpios = <&portb 31 GPIO_ACTIVE_LOW>;
+
+	ieee802154: rf2xx@0 {
+		compatible = "atmel,rf2xx";
+		reg = <0x0>;
+		spi-max-frequency = <6000000>;
+		irq-gpios = <&portb 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+		reset-gpios = <&portb 15 GPIO_ACTIVE_LOW>;
+		slptr-gpios = <&porta 20 GPIO_ACTIVE_HIGH>;
+		dig2-gpios = <&portb 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+		status = "okay";
+		tx-pwr-min = [01 11]; /* -17.0 dBm */
+		tx-pwr-max = [00 04]; /*   4.0 dBm */
+		tx-pwr-table = [00 01 03 04 05 05 06 06
+				07 07 07 08 08 09 09 0a
+				0a 0a 0b 0b 0b 0b 0c 0c
+				0c 0c 0d 0d 0d 0d 0d 0d
+				0d 0d 0e 0e 0e 0e 0e 0e
+				0e 0e 0e 0e 0e 0e 0f 0f];
+	};
+};

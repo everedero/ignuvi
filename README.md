@@ -33,8 +33,8 @@ You will need:
 | --- | --- |
 | STM32F412RG (LQFP64) | Main MCU |
 | AP6212 (BCM4343A0, not the AP6212A) | Wi-Fi + Bluetooth 4.1 SiP |
-| ATSAMR21E18A | 2.4 GHz 802.15.4 radio MCU |
-| AT25SF641 | 64 Mbit SPI NOR flash |
+| ATSAMR21E18A | 2.4 GHz 802.15.4 radio MCU. Unused by the stock firmware, no SWD answer (see SAMR21 pin map) |
+| AT25SF641 | 64 Mbit SPI NOR flash, settings in its first 64 KiB |
 | Apple MFi337S3959 (marked "629 3959 1638", 8-pin) | MFi authentication coprocessor 2.0C, I²C1 at 0x10. HomeKit / WAC accessory identity (see MFi coprocessor) |
 | VIPER013LS | Non-isolated offline converter (half-wave rectified mains) |
 | NCP1117 | 3.3 V LDO |
@@ -92,6 +92,40 @@ User button: Pilot wire: 3 s press = pairing mode
 Hidden button: Pilot wire: press = erase bonds
 
 See the reconstructed schematics in the Kicad folder.
+
+### SAMR21 pin map
+
+First pass, from tracing (pins may be off by one). **The chip never answered on SWD**, see
+[docs/samr21_bringup.md](docs/samr21_bringup.md). Board: `ignuvi_radio`.
+
+| Pin (QFN32) | Connected to | Notes |
+| --- | --- | --- |
+| PA31 | Debug header TP2 | SWDIO |
+| PA30 | Debug header TP3 | SWCLK |
+| RESETn | STM32 PB0 | Hogged high in the `ignuvi` DTS. Verified |
+| PA24 | "UART" test point TX | SERCOM3 PAD2, console in `ignuvi_radio`. May be USB D− instead |
+| PA25 | "UART" test point RX, "6114 0600" pin 11 | SERCOM3 PAD3. May be USB D+ instead |
+| PA14 | "6114 0600" pin 12, via 1 kΩ | |
+| PA18 | STM32 PA1 (?) | Conflicts with USART2_RTS (AP6212): probably wrong |
+| PA07 | STM32 PA5 (SPI1 SCK, flash) | Also seems to reach the AP6212. Left unconfigured |
+| PA06 | STM32 PA6 (SPI1 MISO, flash) | Same. Left unconfigured |
+| PA08, PA09, PA16 | Vias | Unknown. PA08/09 + PA06/07 = SERCOM0, a possible SPI |
+| PA15, PA17, PA27, PA28 | ? | |
+
+The internal AT86RF233 (SERCOM4 on PC19/PB31/PB30/PC18, IRQ PB00, RST PB15, SLP_TR PA20,
+DIG2 PB17) is wired the same on every SAMR21. Its clock is the "NSK B 16TAH" crystal.
+
+Debug header (4 pads): 1 GND, 2 SWDIO (TP2), 3 SWCLK (TP3), 4 VDDANA.
+
+"6114 0600": unidentified 12-pin part (maybe an RF switch or front end):
+
+```
+[]  10 11 12 []
+ 9        o 1
+ 8          2
+ 7          3
+[]  6  5  4  []
+```
 
 
 ### Mains connector

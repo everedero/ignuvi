@@ -14,6 +14,7 @@ manifest:
           - cmsis      # required by the ARM port
           - cmsis_6    # Cortex-M CMSIS headers
           - hal_stm32
+          - hal_atmel     # ATSAMR21E18A radio MCU (ignuvi_radio)
           - hal_infineon  # AIROC Bluetooth HCD glue (AP6212)
           - mbedtls       # PSA crypto for the Bluetooth host
           - tf-psa-crypto
