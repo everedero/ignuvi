@@ -33,16 +33,16 @@ You will need:
 | STM32F412RG (LQFP64) | Main MCU |
 | AP6212 (BCM4343A0, not the AP6212A) | Wi-Fi + Bluetooth 4.1 SiP |
 | ATSAMR21E18A | 2.4 GHz 802.15.4 radio MCU |
-| AT25SF641 | 64 Mbit SPI NOR flash, settings in its first 64 KiB |
+| AT25SF641 | 64 Mbit SPI NOR flash |
 | Apple MFi337S3959 (marked "629 3959 1638", 8-pin) | MFi authentication coprocessor 2.0C, I²C1 at 0x10. HomeKit / WAC accessory identity (see MFi coprocessor) |
 | VIPER013LS | Non-isolated offline converter (half-wave rectified mains) |
 | NCP1117 | 3.3 V LDO |
 | MOC3063M | Zero-cross optotriac (triac driver) |
 | T435-600B | 4 A triac, pilot-wire output |
-| Crystal "NSK B 26TAG" | STM32 HSE, **assumed 26 MHz** |
+| Crystal "NSK B 26TAG" | STM32 HSE, 26 MHz |
 | Crystal "NSK B 16TAH" | ATSAMR21 clock, assumed 16 MHz |
 | Crystal "NSK J 26TAG" | AP6212 clock, assumed 26 MHz |
-| 32.768 kHz crystal | STM32 LSE (PC14/PC15), starts. Not wired to the AP6212 (MCO1 on PA8 does not reach it) |
+| 32.768 kHz crystal | STM32 LSE (PC14/PC15) |
 
 ### STM32 pin map
 
@@ -62,15 +62,15 @@ You will need:
 | PA7 (23) | SPI1 MOSI, SPI flash | |
 | PA11 (44) | USB D− (white) | |
 | PA12 (45) | USB D+ (green) | |
-| PB5 (57) | Middle user button | `sw0`, active high (switch to 3V3), no external pull: internal pull-down. Pilot wire: 3 s press = pairing mode |
-| PC2 (10) | Hidden button (pairing reset) | `sw1`, active high (switch to 3V3), no external pull: internal pull-down. Pilot wire: press = erase bonds |
+| PB5 (57) | Middle user button | `sw0`, active high (switch to 3V3), no external pull: internal pull-down.|
+| PC2 (10) | Hidden button (pairing reset) | `sw1`, active high (switch to 3V3), no external pull: internal pull-down.|
 | PA15, PB3, PB4 (50, 55, 56) | Hardware version resistors (assumed) | 6 footprints, 3 fitted, exact pins to trace. With internal pulls, PA15 and PB3 read low, PB4 high |
 | PB6 (58) | Bottom test pad | USART1_TX: console |
 | PB8 (61) | I2C1_SCL → MFi coprocessor pin 7 | 2.1 kΩ pull-up |
 | PB9 (62) | I2C1_SDA → MFi coprocessor pin 2 | 2.2 kΩ pull-up |
 | PA13 (46) | SWDIO | |
 | PA14 (49) | SWCLK | |
-| NRST (7) | Reset | 280 kΩ pull-up, no test point. Not wired to the probe |
+| NRST (7) | Reset | 280 kΩ pull-up. No test point, cannot wired to the probe |
 | PH0 / PH1 (5, 6) | HSE crystal | |
 | PC5 (25) | AP6212 BT_REG_ON (34) | `bt-reg-on-gpios`, active high |
 | PA2 (16) | USART2_TX → AP6212 UART_RXD (43) | Bluetooth H4, 115200, hw flow control |
@@ -78,15 +78,18 @@ You will need:
 | PA1 (15) | USART2_RTS → AP6212 UART_CTS_N (44) | |
 | PA0 (14) | USART2_CTS ← AP6212 UART_RTS_N (41) | |
 | PB10 (29) | AP6212 LPO (24), via 1 kΩ | 32.768 kHz from TIM2_CH3 (96 MHz / 2929, +240 ppm). Bluetooth answers nothing but HCI_Reset without it |
-| PC8–PC12, PD2 (39–42, 53, 54) | AP6212 SDIO D0–D3, CLK, CMD | Wi-Fi, `st,stm32f4-sdio` driver (`drivers/sdhc`). D0–D3 and CMD are pulled up by the AP6212 |
-| PB12 (33) | AP6212 WL_REG_ON (12) | `wifi-reg-on-gpios`, active high. Found by driving the free pins in turn: the pin 12 → pin 10 trace was wrong |
+| PC8–PC12, PD2 (39–42, 53, 54) | AP6212 SDIO D0–D3, CLK, CMD | Wi-Fi |
+| PB12 (33) | AP6212 WL_REG_ON (12) | `wifi-reg-on-gpios`, active high. |
 | — | AP6212 BT/WL host wake | Not routed: Wi-Fi uses the in-band SDIO interrupt |
-
 
 The optotriac LED anode sits on 3V3: PC6 alone turns it on through the cathode switch.
 
-All pins except SWD were first read rotated by 90° (16 pins);
-the table above has the corrected pins.
+Software notes to move away:
+Flash: settings in first 64 Kbit
+SDIO D0-D3: `st,stm32f4-sdio` driver (`drivers/sdhc`). D0–D3 and CMD are pulled up by the AP6212 |
+User button: Pilot wire: 3 s press = pairing mode
+Hidden button: Pilot wire: press = erase bonds
+
 
 ### Mains connector
 
