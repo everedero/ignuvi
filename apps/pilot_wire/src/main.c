@@ -49,8 +49,14 @@ static int mode_set(const char *name, size_t len, settings_read_cb read_cb, void
 {
 	uint8_t val;
 
-	if (strcmp(name, "mode") || len != 1 || read_cb(cb_arg, &val, 1) != 1 ||
-	    val >= PW_MODE_COUNT) {
+	if (len != 1 || read_cb(cb_arg, &val, 1) != 1) {
+		return -EINVAL;
+	}
+	if (!strcmp(name, "inv") && val <= 1) {
+		pilot_wire_set_invert(val);
+		return 0;
+	}
+	if (strcmp(name, "mode") || val >= PW_MODE_COUNT) {
 		return -EINVAL;
 	}
 	mode = val;
@@ -81,20 +87,25 @@ BT_GATT_SERVICE_DEFINE(pw_svc,
 static ssize_t write_mode(struct bt_conn *conn, const struct bt_gatt_attr *attr, const void *buf,
 			  uint16_t len, uint16_t offset, uint8_t flags)
 {
-	uint8_t val;
-	int err;
-
 	if (offset) {
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
 	}
 	if (len != 1) {
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
-	val = *(const uint8_t *)buf;
-	if (val >= PW_MODE_COUNT) {
+	if (app_set_mode(*(const uint8_t *)buf)) {
 		return BT_GATT_ERR(BT_ATT_ERR_VALUE_NOT_ALLOWED);
 	}
+	return len;
+}
 
+int app_set_mode(uint8_t val)
+{
+	int err;
+
+	if (val >= PW_MODE_COUNT) {
+		return -EINVAL;
+	}
 	mode = val;
 	pilot_wire_set(val);
 	LOG_INF("mode %u", val);
@@ -104,7 +115,21 @@ static ssize_t write_mode(struct bt_conn *conn, const struct bt_gatt_attr *attr,
 		LOG_ERR("mode save failed (%d)", err);
 	}
 	bt_gatt_notify(NULL, &pw_svc.attrs[1], &val, 1);
-	return len;
+	return 0;
+}
+
+int app_set_invert(bool inv)
+{
+	uint8_t val = inv;
+	int err;
+
+	pilot_wire_set_invert(inv);
+	LOG_INF("polarity invert %u", val);
+	err = settings_save_one("pw/inv", &val, 1);
+	if (err) {
+		LOG_ERR("invert save failed (%d)", err);
+	}
+	return err;
 }
 
 static const struct bt_data ad_pairing[] = {

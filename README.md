@@ -336,9 +336,9 @@ button again. Not root-caused: the LED starts blinking before advertising does, 
 
 **Output:** in the middle of each half-wave (5 ms after the PC7 edge), the optotriac LED is set to
 "is the next half-wave wanted". If there is no zero-cross for 40 ms (bench), only Éco and the
-Confort −1/−2 pulses turn the LED on. PC7 high is the negative half-wave on P2 (verified on
-mains: Arrêt stops the heater). If Hors-gel and Arrêt come out swapped on another installation,
-build with `-DCONFIG_PILOT_WIRE_INVERT_POLARITY=y`.
+Confort −1/−2 pulses turn the LED on. The PC7 level → mains polarity mapping is not verified.
+By default PC7 high is taken as the positive half-wave; `pw invert 1` (test build, below) swaps
+it at runtime and saves it (`pw/inv`).
 
 ```bash
 # bench, no mains: a 10 ms timer replaces the zero-cross, and the enabled half-waves
@@ -349,6 +349,45 @@ west flash
 # order logic unit test
 ZEPHYR_BASE=$PWD/zephyr west twister -T ignuvi/apps/pilot_wire/tests -p native_sim
 ```
+
+### Mains test over Bluetooth
+
+On mains the board GND is the phase, so the probe and USART1 must stay unplugged.
+`overlay-test.conf` + `test.overlay` put the Zephyr shell and the logs on the Nordic UART
+Service, and add the `pw` command:
+
+| Command | |
+| --- | --- |
+| `pw status` | mode, invert, zero-cross (edges, Hz, glitches, half-wave min..max, PC7 high %), half-waves enabled per PC7 level, then TP1 (PC3) and TP3 (PC0) at mid half-wave per PC7 level and LED state, and a polarity verdict. Resets the counters. |
+| `pw mode <0-5>` | as the GATT write: set, save, notify |
+| `pw invert <0\|1>` | PC7 high = negative half-wave when 1; saved |
+
+`mode` and `invert` need an encrypted link: the first try asks for encryption, retry once.
+The verdict reads TP1: neutral is above phase (TP1 high) in the PC7 level that is the
+**negative** half on P2. TP3 about 0 while the LED is on means the triac conducts; TP3 only
+means something with the heater connected. P1/P3 swapped at the wall can't be seen by the ADC
+(every order then acts as Confort): check it on the heater.
+
+```bash
+# 1. bench (3.3 V, no mains): simulated zero-cross, check the shell
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi ignuvi/apps/pilot_wire -- \
+    -DEXTRA_CONF_FILE=overlay-test.conf -DEXTRA_DTC_OVERLAY_FILE=test.overlay \
+    -DCONFIG_PILOT_WIRE_SIM_ZC=y -DPython3_EXECUTABLE=$(which python3)
+west flash
+# pair: hold PB5 3 s, then on the PC
+bluetoothctl --timeout 30 scan on; bluetoothctl pair <addr>; bluetoothctl trust <addr>
+pip install bleak
+python3 ignuvi/apps/pilot_wire/sim/nus.py <addr>   # pw status, pw mode 3, pw invert 1, Ctrl-D
+# 2. rebuild without -DCONFIG_PILOT_WIRE_SIM_ZC=y, flash, then UNPLUG USB AND THE PROBE
+```
+
+3. Stop the Home Assistant integration: one link at a time.
+4. On mains with the heater: `pw mode 0`, `pw status` (baseline, wait 10 s first), then each of
+   modes 1–5 followed by `pw status` after a few seconds. Arrêt should read `+N -0`,
+   Hors-gel `+0 -N`. Follow the verdict line with `pw invert`.
+5. Cross-check on the heater: Arrêt stops it, Hors-gel holds about 7 °C, Éco lowers the set
+   point. If Arrêt and Hors-gel look swapped although the verdict says ok, the verdict is
+   wrong (or P1/P3 are swapped): trust the heater.
 
 **On native_sim**, without the board: `native_sim/native/ignuvi` (below) runs the whole app,
 with a [bumble](https://github.com/google/bumble) virtual controller in place of the AP6212.
@@ -361,6 +400,8 @@ python3 -m venv ~/bumble && ~/bumble/bin/pip install bumble
 ZEPHYR_BASE=$PWD/zephyr west build -p -b native_sim/native/ignuvi ignuvi/apps/pilot_wire -- \
     -DCONFIG_PILOT_WIRE_SIM_ZC=y -DPython3_EXECUTABLE=$(which python3)
 BUMBLE_PY=~/bumble/bin/python ignuvi/apps/pilot_wire/sim/run.sh build/zephyr/zephyr.exe   # PASS
+# shell over NUS: build with the two test overlays (above), then
+BUMBLE_PY=~/bumble/bin/python ignuvi/apps/pilot_wire/sim/run.sh build/zephyr/zephyr.exe shell_test.py
 ```
 
 ### Home Assistant (docker)

@@ -1,0 +1,15 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Shell over BLE NUS, for overlay-test.conf
+ */
+
+/ {
+	chosen {
+		zephyr,shell-uart = &bt_nus_uart;
+	};
+
+	bt_nus_uart: bt_nus_uart {
+		compatible = "zephyr,nus-uart";
+	};
+};
