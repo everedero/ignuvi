@@ -352,6 +352,8 @@ ZEPHYR_BASE=$PWD/zephyr west twister -T ignuvi/apps/pilot_wire/tests -p native_s
 
 ### Mains test over Bluetooth
 
+Step-by-step commands and expected output: [`apps/pilot_wire/HOWTO.md`](apps/pilot_wire/HOWTO.md).
+
 On mains the board GND is the phase, so the probe and USART1 must stay unplugged.
 `overlay-test.conf` + `test.overlay` put the Zephyr shell and the logs on the Nordic UART
 Service, and add the `pw` command:
