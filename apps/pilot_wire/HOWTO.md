@@ -39,10 +39,10 @@ it again.
 | --- | --- |
 | `pw status` | `zero-cross ok`, about 50.0 Hz, 0 glitches, half-wave about 9000..11000 us, PC7 high close to 50 %. `LOST`: unplug from mains and stop here |
 | `pw mode 0`, then `pw status` | Confort: `+0 -0`. TP1 is several hundred mV in one PC7 level and about 0 in the other. The verdict line says `want invert 0` or `want invert 1` |
-| `pw mode 3`, then `pw status` | Arrêt: `+N -0`, N about 500 in 10 s. TP3 about 0 with the LED on means the triac conducts. The heater stops |
+| `pw mode 3`, then `pw status` | Arrêt: `+N -0`, N about 500 in 10 s. With the LED on, TP3 mid-scale (about 1650 mV) means the triac conducts; off, it sits at a rail (0 or 3300 mV). The heater stops |
 | `pw mode 2`, then `pw status` | Hors-gel: `+0 -N`. The heater holds about 7 °C |
 | `pw mode 1`, then `pw status` | Éco: `+N -N` |
-| `pw invert 1` (only if the verdict asks) | then repeat modes 3 and 2, and check the heater again |
+| `pw invert 0` (only if the verdict asks) | then repeat modes 3 and 2, and check the heater again |
 | `pw mode <final>` | the mode to leave it in. The mode and invert are saved |
 
 Ctrl-D quits `nus.py`. The `zero-cross present` and 10 s `mode N, half-waves on` log lines also

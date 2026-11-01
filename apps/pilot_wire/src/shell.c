@@ -109,7 +109,8 @@ static int cmd_status(const struct shell *sh, size_t argc, char **argv)
 	}
 	for (int a = 0; a < 2; a++) {
 		if (s.n[vis][a] >= MIN_SAMPLES) {
-			shell_print(sh, "output, LED %s: TP3 %u mV (about 0 = triac conducts)",
+			shell_print(sh, "output, LED %s: TP3 %u mV"
+					" (mid-scale = triac conducts, rail = off)",
 				    a ? "on" : "off", avg(s.fb_mv[vis][a], s.n[vis][a]));
 		}
 	}

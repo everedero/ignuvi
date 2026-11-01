@@ -51,14 +51,15 @@ async def main():
         t = await cmd("pw mode 3")
         assert "mode Arret" in t
         t = await cmd("pw status", 0.5)
-        assert "+0 -" not in t and " -0 (PC7 high" in t and ", low 0)" in t, \
-            "Arret: positive = PC7 high"
-        await cmd("pw invert 1")
+        assert "invert 1" in t and "+0 -" not in t and " -0 (PC7 high 0," in t, \
+            "Arret, default invert 1: positive = PC7 low"
+        await cmd("pw invert 0")
         await cmd("pw status", 0.2)
         await asyncio.sleep(2)
         t = await cmd("pw status", 0.5)
-        assert "invert 1" in t and " -0 (PC7 high 0," in t, "invert: positive = PC7 low"
-        await cmd("pw invert 0")
+        assert "invert 0" in t and " -0 (PC7 high" in t and ", low 0)" in t, \
+            "invert 0: positive = PC7 high"
+        await cmd("pw invert 1")
         await conn.disconnect()
         print("PASS")
 

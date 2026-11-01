@@ -34,7 +34,7 @@ static const struct gpio_dt_spec opto = GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), o
 static atomic_t cur_mode;
 static atomic_t mode_start;
 static atomic_t last_zc;
-static atomic_t invert;
+static atomic_t invert = ATOMIC_INIT(1); /* verified on mains */
 
 static enum pw_half cur_half;
 static int cur_level;  /* raw PC7 level of the running half-wave */
@@ -171,7 +171,7 @@ static void zero_cross(int level)
 	cur_level = level;
 	k_spin_unlock(&lock, key);
 
-	/* Unverified: PC7 high read as the positive half, unless inverted */
+	/* PC7 high is the negative half (invert 1, verified on mains) */
 	cur_half = (level != 0) != (atomic_get(&invert) != 0) ? PW_HALF_POS : PW_HALF_NEG;
 	atomic_set(&last_zc, k_uptime_get_32());
 	k_timer_start(&mid_timer, K_MSEC(ZC_DELAY_MS), K_NO_WAIT);

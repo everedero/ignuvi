@@ -336,9 +336,9 @@ button again. Not root-caused: the LED starts blinking before advertising does, 
 
 **Output:** in the middle of each half-wave (5 ms after the PC7 edge), the optotriac LED is set to
 "is the next half-wave wanted". If there is no zero-cross for 40 ms (bench), only Éco and the
-Confort −1/−2 pulses turn the LED on. The PC7 level → mains polarity mapping is not verified.
-By default PC7 high is taken as the positive half-wave; `pw invert 1` (test build, below) swaps
-it at runtime and saves it (`pw/inv`).
+Confort −1/−2 pulses turn the LED on. PC7 high is the negative half-wave (verified on mains,
+so invert 1 is the default); `pw invert 0` (test build, below) swaps it at runtime and saves it
+(`pw/inv`).
 
 ```bash
 # bench, no mains: a 10 ms timer replaces the zero-cross, and the enabled half-waves
@@ -366,8 +366,9 @@ Service, and add the `pw` command:
 
 `mode` and `invert` need an encrypted link: the first try asks for encryption, retry once.
 The verdict reads TP1: neutral is above phase (TP1 high) in the PC7 level that is the
-**negative** half on P2. TP3 about 0 while the LED is on means the triac conducts; TP3 only
-means something with the heater connected. P1/P3 swapped at the wall can't be seen by the ADC
+**negative** half on P2. With the LED on, TP3 mid-scale (about 1650 mV) means the triac
+conducts; off, it sits at a rail (0 or 3300 mV). TP3 only means something with the heater
+connected. P1/P3 swapped at the wall can't be seen by the ADC
 (every order then acts as Confort): check it on the heater.
 
 ```bash
