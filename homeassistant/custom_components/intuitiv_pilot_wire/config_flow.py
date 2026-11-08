@@ -71,6 +71,9 @@ class IntuitivConfigFlow(ConfigFlow, domain=DOMAIN):
         return f"{self._discovery.name or 'Intuitiv'} {self._discovery.address[-5:]}"
 
     def _create(self) -> ConfigFlowResult:
+        # A discovery flow left on its confirm step must not duplicate an entry
+        # created meanwhile by another flow
+        self._abort_if_unique_id_configured()
         return self.async_create_entry(
             title=self._title(), data={CONF_ADDRESS: self._discovery.address}
         )

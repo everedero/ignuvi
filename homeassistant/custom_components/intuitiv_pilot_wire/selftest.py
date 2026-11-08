@@ -23,13 +23,18 @@ class FakeClient:
         self.value = bytes([mode])
         self.writes = []
         self.notify = None
+        self.paired = False
 
     async def read_gatt_char(self, uuid):
         assert uuid == MODE_UUID
         return bytearray(self.value)
 
+    async def pair(self):
+        self.paired = True
+
     async def start_notify(self, uuid, cb):
         assert uuid == MODE_UUID
+        assert self.paired, "CCC write before the bond"
         self.notify = cb
 
     async def write_gatt_char(self, uuid, data, response):

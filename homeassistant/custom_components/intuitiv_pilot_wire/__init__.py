@@ -65,7 +65,14 @@ class PilotWire:
             )
             try:
                 self.mode = (await client.read_gatt_char(MODE_UUID))[0]
-                # The CCC write needs an encrypted link: the host bond
+                # The CCC write needs an encrypted link: bond first (Just Works,
+                # no-op once bonded). The board only accepts it in pairing mode.
+                try:
+                    await client.pair()
+                except Exception as err:
+                    raise ConnectionError(
+                        "not bonded: hold the middle button 3 s, then reload"
+                    ) from err
                 await client.start_notify(MODE_UUID, self._on_notify)
             except Exception:
                 await client.disconnect()
@@ -93,8 +100,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     pw = PilotWire(address)
     try:
-        await pw.connect(device)
-    except Exception as err:  # bleak raises many types
+        # Unbonded host: the board ignores us, never block HA startup on it
+        async with asyncio.timeout(30):
+            await pw.connect(device)
+    except Exception as err:  # bleak raises many types, TimeoutError too
         raise ConfigEntryNotReady(f"{address}: {err}") from err
 
     @callback

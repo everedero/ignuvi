@@ -362,8 +362,9 @@ BUMBLE_PY=~/bumble/bin/python intuitiv/apps/pilot_wire/sim/run.sh build/zephyr/z
 
 ### Home Assistant (docker)
 
-Pair once from the host, in pairing mode. BlueZ keeps the bond. The desktop agent
-rejects the Just Works confirmation (SMP error 0x0c), so let bluetoothctl's own agent handle it:
+The integration pairs by itself (Just Works) while the board is in pairing mode. On a desktop
+host this can fail: the desktop agent rejects the Just Works confirmation (SMP error 0x0c).
+Then pair once from the host, in pairing mode, with bluetoothctl's own agent. BlueZ keeps the bond:
 
 ```bash
 bluetoothctl
@@ -499,8 +500,10 @@ openocd -s intuitiv/boards/vendor/intuitiv/support -f intuitiv/boards/vendor/int
 Copy `custom_components/intuitiv_pilot_wire/` to `/config/custom_components/` on
 Home Assistant machine, then restart it
 
-The module will appear on Home Assistant. If it does not, see *Known issue: pairing mode
-without advertising* above.
+Hold the board's middle button 3 s (blue LED blinks): the module will appear on Home
+Assistant. Confirm it while the LED blinks, the integration pairs then. If setup fails with
+"not bonded", hold the button again and reload the entry. If the module does not appear, see
+*Known issue: pairing mode without advertising* above.
 
 However, if what you want is to create a software thermostat with an external thermal sensor
 (which is a good idea since internal heaters thermal sensing can be very off...), you will
@@ -539,4 +542,25 @@ For Pi, for instance, install the SSH server add-on module.
 ```
 ssh root@homeassistant.local 'mkdir -p /config/custom_components'
 scp -r ~/homeassistant/custom_components/intuitiv_pilot_wire root@homeassistant.local:/config/custom_components/
+```
+
+If you want to create a schedule.
+Go to Settings -> Automations -> Create automation -> ⋮ -> Edit in YAML and paste:
+
+```
+alias: Intuitiv 1F AC off during the day
+triggers:
+  - trigger: time
+    at: "08:00:00"
+    id: "off"
+  - trigger: time
+    at: "22:00:00"
+    id: heat
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: climate.intuitiv_1f_ac_thermostat
+    data:
+      hvac_mode: "{{ trigger.id }}"
+mode: single
 ```

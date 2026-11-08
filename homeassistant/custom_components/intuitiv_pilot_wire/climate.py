@@ -37,7 +37,7 @@ class PilotWireClimate(ClimateEntity):
         | ClimateEntityFeature.TURN_OFF
     )
     # No sensor on the board: required by the base class, never shown
-    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(self, pw: PilotWire, title: str) -> None:
         self._pw = pw

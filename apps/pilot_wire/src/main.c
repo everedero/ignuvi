@@ -9,7 +9,7 @@
  * discoverable mode for 180 s, the blue LED blinks and Just Works pairing is
  * accepted. Outside it, the board is non-discoverable and only bonded peers
  * may connect (filter accept list). A press on the hidden button (sw1) erases
- * every bond. With no bond, the board enters pairing mode on its own.
+ * every bond. With no bond, the board stays in pairing mode until a host bonds.
  */
 
 #include <zephyr/kernel.h>
@@ -182,8 +182,23 @@ static void blink(struct k_timer *t)
 }
 static K_TIMER_DEFINE(blink_timer, blink, NULL);
 
+static struct k_work_delayable pairing_end_work;
+
+static void count_bond(const struct bt_bond_info *info, void *user_data)
+{
+	(*(int *)user_data)++;
+}
+
 static void pairing_end(struct k_work *work)
 {
+	int bonds = 0;
+
+	/* No bond: the accept list would be empty and nobody could connect */
+	bt_foreach_bond(BT_ID_DEFAULT, count_bond, &bonds);
+	if (!bonds) {
+		k_work_reschedule(&pairing_end_work, PAIRING_TIME);
+		return;
+	}
 	if (atomic_cas(&pairing, 1, 0)) {
 		k_timer_stop(&blink_timer);
 		gpio_pin_set_dt(&led_blue, 0);
@@ -314,11 +329,6 @@ static int button_init(const struct gpio_dt_spec *b, struct gpio_callback *cb,
 		err = gpio_add_callback_dt(b, cb);
 	}
 	return err;
-}
-
-static void count_bond(const struct bt_bond_info *info, void *user_data)
-{
-	(*(int *)user_data)++;
 }
 
 int main(void)

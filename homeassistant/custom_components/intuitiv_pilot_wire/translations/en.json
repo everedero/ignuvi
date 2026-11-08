@@ -3,7 +3,7 @@
     "flow_title": "{name}",
     "step": {
       "confirm": {
-        "description": "Set up {name}? Pair it from the host first (see the README)."
+        "description": "Set up {name}? Hold the board's middle button 3 s (blue LED blinks) before confirming."
       },
       "user": {
         "data": { "address": "Device" }
