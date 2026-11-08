@@ -484,3 +484,44 @@ Verify after a flash:
 openocd -s intuitiv/boards/vendor/intuitiv/support -f intuitiv/boards/vendor/intuitiv/support/openocd.cfg \
     -c init -c "reset halt" -c "verify_image build/zephyr/zephyr.hex" -c intuitiv_run_app
 ```
+
+## Home Assistant integration
+
+Copy `custom_components/intuitiv_pilot_wire/` to `/config/custom_components/` on
+Home Assistant machine, then restart it
+
+The module will appear on Home Assistant.
+
+However, if what you want is to create a software thermostat with an external thermal sensor
+(which is a good idea since internal heaters thermal sensing can be very off...), you will
+need to add it to your Home Assistant configuration.yaml, at the root of the Home Assistant
+installation folder.
+
+Add this (replace the names for your module and your thermal sensor):
+```bash
+template:
+  - switch:
+      - name: Intuitiv heater
+        unique_id: intuitiv_1f_ac_heater
+        state: "{{ is_state('climate.intuitiv_1f_ac', 'heat') and is_state_attr('climate.intuitiv_1f_ac', 'preset_mode', 'comfort') }}"
+        turn_on:
+          - action: climate.set_preset_mode
+            target: { entity_id: climate.intuitiv_1f_ac }
+            data: { preset_mode: comfort }
+        turn_off:
+          - action: climate.turn_off
+            target: { entity_id: climate.intuitiv_1f_ac }
+
+climate:
+  - platform: generic_thermostat
+    name: Intuitiv 1F AC thermostat
+    unique_id: intuitiv_1f_ac_thermostat
+    heater: switch.intuitiv_1f_ac_heater
+    target_sensor: sensor.coffeecaller_73e9_temperature
+    target_temp: 20
+    cold_tolerance: 0.3
+    hot_tolerance: 0.3
+    min_cycle_duration: { minutes: 5 }
+```
+
+For Pi, for instance, install the SSH server add-on module.
