@@ -322,6 +322,15 @@ during a link (reproduced on the bench), so the board never does. Entering pairi
 disconnects the current peer to free the slot. If a bonded host (HA) reconnects first, hold
 the button again.
 
+**Known issue: pairing mode without advertising.** Seen when moving the board to a new HA
+host: the blue LED blinks, but the board keeps its normal advertising (`02 01 04`, no UUID, no
+name) or goes silent, so HA reports "No Intuitiv found over Bluetooth". The erase button does
+not help. Workaround: power-cycle the heater (board included) for a few seconds, then hold the
+button again. Not root-caused: the LED starts blinking before advertising does, so a failing
+`bt_le_adv_start()` (only logged as `advertising failed`) and a link that never went down
+(`adv_restart()` waits for it) look the same from outside. Next time, capture the PB6 log
+(2 Mbaud) during the press.
+
 **Output:** in the middle of each half-wave (5 ms after the PC7 edge), the optotriac LED is set to
 "is the next half-wave wanted". If there is no zero-cross for 40 ms (bench), only Éco and the
 Confort −1/−2 pulses turn the LED on. PC7 high is the negative half-wave on P2 (verified on
@@ -490,7 +499,8 @@ openocd -s intuitiv/boards/vendor/intuitiv/support -f intuitiv/boards/vendor/int
 Copy `custom_components/intuitiv_pilot_wire/` to `/config/custom_components/` on
 Home Assistant machine, then restart it
 
-The module will appear on Home Assistant.
+The module will appear on Home Assistant. If it does not, see *Known issue: pairing mode
+without advertising* above.
 
 However, if what you want is to create a software thermostat with an external thermal sensor
 (which is a good idea since internal heaters thermal sensing can be very off...), you will
@@ -525,3 +535,8 @@ climate:
 ```
 
 For Pi, for instance, install the SSH server add-on module.
+
+```
+ssh root@homeassistant.local 'mkdir -p /config/custom_components'
+scp -r ~/homeassistant/custom_components/intuitiv_pilot_wire root@homeassistant.local:/config/custom_components/
+```
