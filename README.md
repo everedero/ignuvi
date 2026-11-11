@@ -12,6 +12,7 @@ board built around an STM32F412RG (LQFP64).
 * Bluetooth LE works (the PC pairs with the peripheral sample, bonds survive a reboot)
 * BLE settings persist on the SPI flash
 * AT25SF641 flash passes the test from `samples/drivers/spi_flash`
+* Zigbee chip firmware not working
 
 ## Firmware replacement shortcomings
 
@@ -89,6 +90,8 @@ Flash: settings in first 64 Kbit
 SDIO D0-D3: `st,stm32f4-sdio` driver (`drivers/sdhc`). D0–D3 and CMD are pulled up by the AP6212 |
 User button: Pilot wire: 3 s press = pairing mode
 Hidden button: Pilot wire: press = erase bonds
+
+See the reconstructed schematics in the Kicad folder.
 
 
 ### Mains connector
