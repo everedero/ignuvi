@@ -32,7 +32,7 @@ python3 ignuvi/apps/pilot_wire/sim/nus.py <addr>
 ```
 
 Wait about 10 s between a `mode` and its `status`, so the window holds enough half-waves. The
-first `mode` or `invert` may answer "link not encrypted": encryption is then requested, so send
+first `mode` may answer "link not encrypted": encryption is then requested, so send
 it again.
 
 | Command | Expected |
@@ -42,8 +42,8 @@ it again.
 | `pw mode 3`, then `pw status` | Arrêt: `+N -0`, N about 500 in 10 s. With the LED on, TP3 mid-scale (about 1650 mV) means the triac conducts; off, it sits at a rail (0 or 3300 mV). The heater stops |
 | `pw mode 2`, then `pw status` | Hors-gel: `+0 -N`. The heater holds about 7 °C |
 | `pw mode 1`, then `pw status` | Éco: `+N -N` |
-| `pw invert 0` (only if the verdict asks) | then repeat modes 3 and 2, and check the heater again |
-| `pw mode <final>` | the mode to leave it in. The mode and invert are saved |
+| (only if the verdict asks for `invert 1`) | rebuild with `-DCONFIG_PILOT_WIRE_INVERT_POLARITY=y`, flash, then repeat modes 3 and 2 and check the heater again |
+| `pw mode <final>` | the mode to leave it in. The mode is saved |
 
 Ctrl-D quits `nus.py`. The `zero-cross present` and 10 s `mode N, half-waves on` log lines also
 show up in the terminal.

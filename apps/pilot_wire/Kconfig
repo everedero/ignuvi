@@ -7,4 +7,11 @@ config PILOT_WIRE_SIM_ZC
 	  interrupt. The output logic runs as on mains, and the enabled
 	  half-wave counts are logged every 10 s.
 
+config PILOT_WIRE_INVERT_POLARITY
+	bool "Swap positive and negative half-waves"
+	help
+	  Verified on mains: PC7 high is the negative half-wave on P2, which
+	  is the default. Enable this only if Hors-gel and Arret come out
+	  swapped on another installation.
+
 source "Kconfig.zephyr"

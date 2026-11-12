@@ -34,7 +34,6 @@ static const struct gpio_dt_spec opto = GPIO_DT_SPEC_GET(DT_PATH(zephyr_user), o
 static atomic_t cur_mode;
 static atomic_t mode_start;
 static atomic_t last_zc;
-static atomic_t invert = ATOMIC_INIT(1); /* verified on mains */
 
 static enum pw_half cur_half;
 static int cur_level;  /* raw PC7 level of the running half-wave */
@@ -171,8 +170,9 @@ static void zero_cross(int level)
 	cur_level = level;
 	k_spin_unlock(&lock, key);
 
-	/* PC7 high is the negative half (invert 1, verified on mains) */
-	cur_half = (level != 0) != (atomic_get(&invert) != 0) ? PW_HALF_POS : PW_HALF_NEG;
+	/* Verified on mains: PC7 high is the negative half-wave on P2 */
+	cur_half = (level != 0) != IS_ENABLED(CONFIG_PILOT_WIRE_INVERT_POLARITY) ? PW_HALF_NEG
+										 : PW_HALF_POS;
 	atomic_set(&last_zc, k_uptime_get_32());
 	k_timer_start(&mid_timer, K_MSEC(ZC_DELAY_MS), K_NO_WAIT);
 }
@@ -238,11 +238,6 @@ void pilot_wire_set(enum pw_mode mode)
 	atomic_set(&cur_mode, mode);
 }
 
-void pilot_wire_set_invert(bool inv)
-{
-	atomic_set(&invert, inv);
-}
-
 void pilot_wire_stats(struct pw_stats *out, bool reset)
 {
 	k_spinlock_key_t key = k_spin_lock(&lock);
@@ -257,7 +252,7 @@ void pilot_wire_stats(struct pw_stats *out, bool reset)
 	out->adc = adc_ok;
 	out->zc_ok = zc_present();
 	out->led = led;
-	out->invert = atomic_get(&invert);
+	out->invert = IS_ENABLED(CONFIG_PILOT_WIRE_INVERT_POLARITY);
 }
 
 int pilot_wire_init(enum pw_mode mode)

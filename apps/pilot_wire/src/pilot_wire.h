@@ -28,16 +28,14 @@ struct pw_stats {
 	bool adc;    /* ADC present and read without error */
 	bool zc_ok;  /* zero-cross seen in the last 40 ms */
 	bool led;    /* current optotriac LED state */
-	bool invert; /* PC7 high taken as the negative half-wave */
+	bool invert; /* CONFIG_PILOT_WIRE_INVERT_POLARITY */
 };
 
 int pilot_wire_init(enum pw_mode mode);
 void pilot_wire_set(enum pw_mode mode);
-void pilot_wire_set_invert(bool invert);
 void pilot_wire_stats(struct pw_stats *out, bool reset);
 
 /* In main.c: set, save and notify, as a Bluetooth write would */
 int app_set_mode(uint8_t mode);
-int app_set_invert(bool invert);
 
 #endif /* PILOT_WIRE_H_ */

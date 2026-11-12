@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * "pw" shell command, meant for the mains test over the BLE NUS shell
- * (overlay-test.conf): status and diagnostics, mode, polarity swap.
+ * (overlay-test.conf): status and diagnostics, mode.
  */
 
 #include <stdlib.h>
@@ -97,12 +97,18 @@ static int cmd_status(const struct shell *sh, size_t argc, char **argv)
 	}
 	if (hi > lo + FLAT_MV) {
 		vis = 1;
-		shell_print(sh, "verdict: PC7 high = neutral above phase = NEGATIVE half on P2"
-				" -> want invert 1%s", s.invert ? " (ok)" : ": run 'pw invert 1'");
+		shell_print(sh,
+			    "verdict: PC7 high = neutral above phase = NEGATIVE half on P2"
+			    " -> want invert 0%s",
+			    s.invert ? ": rebuild without CONFIG_PILOT_WIRE_INVERT_POLARITY"
+				     : " (ok)");
 	} else if (lo > hi + FLAT_MV) {
 		vis = 0;
-		shell_print(sh, "verdict: PC7 high = phase above neutral = POSITIVE half on P2"
-				" -> want invert 0%s", s.invert ? ": run 'pw invert 0'" : " (ok)");
+		shell_print(sh,
+			    "verdict: PC7 high = phase above neutral = POSITIVE half on P2"
+			    " -> want invert 1%s",
+			    s.invert ? " (ok)"
+				     : ": rebuild with CONFIG_PILOT_WIRE_INVERT_POLARITY=y");
 	} else {
 		shell_print(sh, "verdict: TP1 flat (no mains, or simulated zero-cross)");
 		return 0;
@@ -140,27 +146,9 @@ static int cmd_mode(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
-static int cmd_invert(const struct shell *sh, size_t argc, char **argv)
-{
-	if (strcmp(argv[1], "0") && strcmp(argv[1], "1")) {
-		shell_error(sh, "invert: 0 or 1");
-		return -EINVAL;
-	}
-	if (!encrypted(sh)) {
-		return -EACCES;
-	}
-	bool inv = argv[1][0] == '1';
-	int err = app_set_invert(inv);
-
-	shell_print(sh, "invert %d: PC7 high is the %s half-wave", inv,
-		    inv ? "negative" : "positive");
-	return err;
-}
-
 SHELL_STATIC_SUBCMD_SET_CREATE(pw_cmds,
 	SHELL_CMD_ARG(status, NULL, "Diagnostics since the last call, then reset", cmd_status,
 		      1, 0),
 	SHELL_CMD_ARG(mode, NULL, "<0-5> Set the pilot-wire order", cmd_mode, 2, 0),
-	SHELL_CMD_ARG(invert, NULL, "<0|1> Swap the half-wave polarity", cmd_invert, 2, 0),
 	SHELL_SUBCMD_SET_END);
 SHELL_CMD_REGISTER(pw, &pw_cmds, "Pilot wire", NULL);

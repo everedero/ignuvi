@@ -336,9 +336,9 @@ button again. Not root-caused: the LED starts blinking before advertising does, 
 
 **Output:** in the middle of each half-wave (5 ms after the PC7 edge), the optotriac LED is set to
 "is the next half-wave wanted". If there is no zero-cross for 40 ms (bench), only Éco and the
-Confort −1/−2 pulses turn the LED on. PC7 high is the negative half-wave (verified on mains,
-so invert 1 is the default); `pw invert 0` (test build, below) swaps it at runtime and saves it
-(`pw/inv`).
+Confort −1/−2 pulses turn the LED on. PC7 high is the negative half-wave on P2 (verified on
+mains: Arrêt stops the heater). If Hors-gel and Arrêt come out swapped on another installation,
+build with `-DCONFIG_PILOT_WIRE_INVERT_POLARITY=y`.
 
 ```bash
 # bench, no mains: a 10 ms timer replaces the zero-cross, and the enabled half-waves
@@ -360,11 +360,10 @@ Service, and add the `pw` command:
 
 | Command | |
 | --- | --- |
-| `pw status` | mode, invert, zero-cross (edges, Hz, glitches, half-wave min..max, PC7 high %), half-waves enabled per PC7 level, then TP1 (PC3) and TP3 (PC0) at mid half-wave per PC7 level and LED state, and a polarity verdict. Resets the counters. |
+| `pw status` | mode, invert (`CONFIG_PILOT_WIRE_INVERT_POLARITY`), zero-cross (edges, Hz, glitches, half-wave min..max, PC7 high %), half-waves enabled per PC7 level, then TP1 (PC3) and TP3 (PC0) at mid half-wave per PC7 level and LED state, and a polarity verdict. Resets the counters. |
 | `pw mode <0-5>` | as the GATT write: set, save, notify |
-| `pw invert <0\|1>` | PC7 high = negative half-wave when 1; saved |
 
-`mode` and `invert` need an encrypted link: the first try asks for encryption, retry once.
+`mode` needs an encrypted link: the first try asks for encryption, retry once.
 The verdict reads TP1: neutral is above phase (TP1 high) in the PC7 level that is the
 **negative** half on P2. With the LED on, TP3 mid-scale (about 1650 mV) means the triac
 conducts; off, it sits at a rail (0 or 3300 mV). TP3 only means something with the heater
@@ -380,14 +379,15 @@ west flash
 # pair: hold PB5 3 s, then on the PC
 bluetoothctl --timeout 30 scan on; bluetoothctl pair <addr>; bluetoothctl trust <addr>
 pip install bleak
-python3 ignuvi/apps/pilot_wire/sim/nus.py <addr>   # pw status, pw mode 3, pw invert 1, Ctrl-D
+python3 ignuvi/apps/pilot_wire/sim/nus.py <addr>   # pw status, pw mode 3, Ctrl-D
 # 2. rebuild without -DCONFIG_PILOT_WIRE_SIM_ZC=y, flash, then UNPLUG USB AND THE PROBE
 ```
 
 3. Stop the Home Assistant integration: one link at a time.
 4. On mains with the heater: `pw mode 0`, `pw status` (baseline, wait 10 s first), then each of
    modes 1–5 followed by `pw status` after a few seconds. Arrêt should read `+N -0`,
-   Hors-gel `+0 -N`. Follow the verdict line with `pw invert`.
+   Hors-gel `+0 -N`. If the verdict asks for `invert 1`, rebuild with
+   `-DCONFIG_PILOT_WIRE_INVERT_POLARITY=y`.
 5. Cross-check on the heater: Arrêt stops it, Hors-gel holds about 7 °C, Éco lowers the set
    point. If Arrêt and Hors-gel look swapped although the verdict says ok, the verdict is
    wrong (or P1/P3 are swapped): trust the heater.

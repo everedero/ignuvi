@@ -52,10 +52,6 @@ static int mode_set(const char *name, size_t len, settings_read_cb read_cb, void
 	if (len != 1 || read_cb(cb_arg, &val, 1) != 1) {
 		return -EINVAL;
 	}
-	if (!strcmp(name, "inv") && val <= 1) {
-		pilot_wire_set_invert(val);
-		return 0;
-	}
 	if (strcmp(name, "mode") || val >= PW_MODE_COUNT) {
 		return -EINVAL;
 	}
@@ -116,20 +112,6 @@ int app_set_mode(uint8_t val)
 	}
 	bt_gatt_notify(NULL, &pw_svc.attrs[1], &val, 1);
 	return 0;
-}
-
-int app_set_invert(bool inv)
-{
-	uint8_t val = inv;
-	int err;
-
-	pilot_wire_set_invert(inv);
-	LOG_INF("polarity invert %u", val);
-	err = settings_save_one("pw/inv", &val, 1);
-	if (err) {
-		LOG_ERR("invert save failed (%d)", err);
-	}
-	return err;
 }
 
 static const struct bt_data ad_pairing[] = {

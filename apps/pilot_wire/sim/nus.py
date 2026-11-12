@@ -4,7 +4,7 @@
 
 Pair once with bluetoothctl during the pairing window. The board is then not
 discoverable, but BlueZ still connects to the bonded address. Type shell
-commands (pw status, pw mode 2, pw invert 1); Ctrl-D quits."""
+commands (pw status, pw mode 2); Ctrl-D quits."""
 
 import asyncio
 import sys
