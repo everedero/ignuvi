@@ -5,14 +5,14 @@ tests:
   # LEDs, buttons, SPI flash: the board, or native_sim with the same devicetree
   board.devices:
     platform_allow:
-      - intuitiv
-      - native_sim/native/intuitiv
+      - ignuvi
+      - native_sim/native/ignuvi
     integration_platforms:
-      - native_sim/native/intuitiv
+      - native_sim/native/ignuvi
   # Bluetooth controller bring-up: needs the AP6212 (and its untracked HCD)
   board.bluetooth:
     tags: hcd
     platform_allow:
-      - intuitiv
+      - ignuvi
     extra_args:
       - EXTRA_CONF_FILE=bt.conf

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # On a pushed tag: build apps/pilot_wire (pilot wire over Bluetooth) for
-# intuitiv and publish zephyr.bin and zephyr.elf in a GitHub release.
+# ignuvi and publish zephyr.bin and zephyr.elf in a GitHub release.
 name: Release
 
 on:
@@ -17,21 +17,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: intuitiv
+          path: ignuvi
 
       - uses: zephyrproject-rtos/action-zephyr-setup@v1
         with:
-          app-path: intuitiv
+          app-path: ignuvi
           toolchains: arm-zephyr-eabi
 
       # The AP6212 patchram is not committed (see README, Bluetooth)
       - name: Fetch the patchram
         run: >
-          curl -fL -o intuitiv/apps/bluetooth/bcm43438a0.hcd
+          curl -fL -o ignuvi/apps/bluetooth/bcm43438a0.hcd
           https://raw.githubusercontent.com/armbian/firmware/master/ap6212/bcm43438a0.hcd
 
       - name: Build
-        run: west build -b intuitiv intuitiv/apps/pilot_wire
+        run: west build -b ignuvi ignuvi/apps/pilot_wire
 
       - name: Publish
         env:

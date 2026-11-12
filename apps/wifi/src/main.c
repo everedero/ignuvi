@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Wi-Fi bring-up on the AP6212: scan and log the networks, then join
- * CONFIG_INTUITIV_WIFI_SSID (if set), wait for a DHCP address and ping 8.8.8.8.
+ * CONFIG_IGNUVI_WIFI_SSID (if set), wait for a DHCP address and ping 8.8.8.8.
  */
 
 #include <zephyr/kernel.h>
@@ -121,23 +121,23 @@ int main(void)
 	k_sem_take(&scan_done, K_SECONDS(30));
 	LOG_INF("scan done, %d networks", found);
 
-	if (sizeof(CONFIG_INTUITIV_WIFI_SSID) == 1) {
+	if (sizeof(CONFIG_IGNUVI_WIFI_SSID) == 1) {
 		return 0;
 	}
 
 	struct wifi_connect_req_params p = {
-		.ssid = CONFIG_INTUITIV_WIFI_SSID,
-		.ssid_length = sizeof(CONFIG_INTUITIV_WIFI_SSID) - 1,
-		.psk = CONFIG_INTUITIV_WIFI_PSK,
-		.psk_length = sizeof(CONFIG_INTUITIV_WIFI_PSK) - 1,
-		.security = sizeof(CONFIG_INTUITIV_WIFI_PSK) > 1 ? WIFI_SECURITY_TYPE_PSK
-								 : WIFI_SECURITY_TYPE_NONE,
+		.ssid = CONFIG_IGNUVI_WIFI_SSID,
+		.ssid_length = sizeof(CONFIG_IGNUVI_WIFI_SSID) - 1,
+		.psk = CONFIG_IGNUVI_WIFI_PSK,
+		.psk_length = sizeof(CONFIG_IGNUVI_WIFI_PSK) - 1,
+		.security = sizeof(CONFIG_IGNUVI_WIFI_PSK) > 1 ? WIFI_SECURITY_TYPE_PSK
+							       : WIFI_SECURITY_TYPE_NONE,
 		.band = WIFI_FREQ_BAND_2_4_GHZ,
 		.channel = WIFI_CHANNEL_ANY,
 		.mfp = WIFI_MFP_OPTIONAL,
 	};
 
-	LOG_INF("joining %s", CONFIG_INTUITIV_WIFI_SSID);
+	LOG_INF("joining %s", CONFIG_IGNUVI_WIFI_SSID);
 	err = net_mgmt(NET_REQUEST_WIFI_CONNECT, iface, &p, sizeof(p));
 	if (err) {
 		LOG_ERR("connect request failed (%d)", err);

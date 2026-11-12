@@ -1,6 +1,6 @@
 # Variant data only: the rest comes from native_sim's twister.yaml
 variants:
-  native_sim/native/intuitiv:
-    name: Intuitiv on native_sim
+  native_sim/native/ignuvi:
+    name: Ignuvi on native_sim
     testing:
       default: false

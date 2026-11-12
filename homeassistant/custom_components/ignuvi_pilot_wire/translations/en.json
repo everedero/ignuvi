@@ -11,7 +11,7 @@
     },
     "abort": {
       "already_configured": "Device is already configured",
-      "no_devices_found": "No Intuitiv found over Bluetooth"
+      "no_devices_found": "No Ignuvi found over Bluetooth"
     }
   },
   "entity": {

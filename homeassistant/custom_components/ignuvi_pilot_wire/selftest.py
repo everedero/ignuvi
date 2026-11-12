@@ -1,5 +1,5 @@
 """Self-check without a board. In the HA container:
-docker exec homeassistant python3 /config/custom_components/intuitiv_pilot_wire/selftest.py
+docker exec homeassistant python3 /config/custom_components/ignuvi_pilot_wire/selftest.py
 """
 
 import asyncio
@@ -8,10 +8,10 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-import custom_components.intuitiv_pilot_wire as pkg  # noqa: E402
-from custom_components.intuitiv_pilot_wire import config_flow  # noqa: E402, F401
-from custom_components.intuitiv_pilot_wire.climate import PilotWireClimate  # noqa: E402
-from custom_components.intuitiv_pilot_wire.const import MODE_UUID  # noqa: E402
+import custom_components.ignuvi_pilot_wire as pkg  # noqa: E402
+from custom_components.ignuvi_pilot_wire import config_flow  # noqa: E402, F401
+from custom_components.ignuvi_pilot_wire.climate import PilotWireClimate  # noqa: E402
+from custom_components.ignuvi_pilot_wire.const import MODE_UUID  # noqa: E402
 
 from homeassistant.components.climate import HVACMode  # noqa: E402
 
@@ -57,7 +57,7 @@ async def main():
     await pw.connect(object())
     assert pw.connected and pw.mode == 1
 
-    ent = PilotWireClimate(pw, "Intuitiv 1F:AC")
+    ent = PilotWireClimate(pw, "Ignuvi 1F:AC")
     states = []
     pw.add_listener(lambda: states.append((ent.hvac_mode, ent.preset_mode)))
     assert ent.available and ent.hvac_mode == HVACMode.HEAT and ent.preset_mode == "eco"

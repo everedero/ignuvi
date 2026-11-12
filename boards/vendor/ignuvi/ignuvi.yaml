@@ -1,5 +1,5 @@
-identifier: intuitiv
-name: Intuitiv pilot-wire gateway
+identifier: ignuvi
+name: Ignuvi pilot-wire gateway
 type: mcu
 arch: arm
 ram: 256

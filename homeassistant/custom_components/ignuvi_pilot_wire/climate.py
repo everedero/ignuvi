@@ -47,7 +47,7 @@ class PilotWireClimate(ClimateEntity):
             connections={(CONNECTION_BLUETOOTH, pw.address)},
             name=title,
             manufacturer="vendor",
-            model="Intuitiv",
+            model="Ignuvi",
         )
 
     async def async_added_to_hass(self) -> None:

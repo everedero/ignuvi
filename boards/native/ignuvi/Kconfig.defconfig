@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-if BOARD_NATIVE_SIM_NATIVE_INTUITIV
+if BOARD_NATIVE_SIM_NATIVE_IGNUVI
 
 # Settings backend: NVS on the simulated SPI NOR, as on the board
 config FLASH
@@ -15,4 +15,4 @@ config NVS
 config SETTINGS_NVS_SECTOR_COUNT
 	default 16
 
-endif # BOARD_NATIVE_SIM_NATIVE_INTUITIV
+endif # BOARD_NATIVE_SIM_NATIVE_IGNUVI

@@ -1,7 +1,7 @@
 /*
  * SPDX-License-Identifier: Apache-2.0
  *
- * native_sim with the intuitiv board's devices under the same labels and
+ * native_sim with the ignuvi board's devices under the same labels and
  * aliases: RGB LED (active low), two buttons (active high), pilot-wire
  * GPIOs, and the 8 MiB SPI NOR as a flash simulator.
  */
@@ -10,10 +10,10 @@
 #include <zephyr/dt-bindings/input/input-event-codes.h>
 
 / {
-	model = "Intuitiv pilot-wire gateway (native_sim)";
+	model = "Ignuvi pilot-wire gateway (native_sim)";
 
 	chosen {
-		zephyr,settings-partition = &intuitiv_storage;
+		zephyr,settings-partition = &ignuvi_storage;
 	};
 
 	leds {
@@ -84,8 +84,8 @@
 				#size-cells = <1>;
 
 				/* Same 64 KiB settings area as the board */
-				intuitiv_storage: partition@0 {
-					label = "intuitiv-storage";
+				ignuvi_storage: partition@0 {
+					label = "ignuvi-storage";
 					reg = <0x0 DT_SIZE_K(64)>;
 				};
 			};

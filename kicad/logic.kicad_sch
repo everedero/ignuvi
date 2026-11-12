@@ -2974,7 +2974,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "intuitiv:AP6212"
+		(symbol "ignuvi:AP6212"
 			(pin_names
 				(offset 1.016)
 			)
@@ -3901,7 +3901,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "intuitiv:ATSAMR21E18A"
+		(symbol "ignuvi:ATSAMR21E18A"
 			(pin_names
 				(offset 1.016)
 			)
@@ -4580,7 +4580,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "intuitiv:MFI337S3959"
+		(symbol "ignuvi:MFI337S3959"
 			(pin_names
 				(offset 1.016)
 			)
@@ -10675,7 +10675,7 @@
 		)
 	)
 	(symbol
-		(lib_id "intuitiv:MFI337S3959")
+		(lib_id "ignuvi:MFI337S3959")
 		(at 261.62 138.43 0)
 		(unit 1)
 		(body_style 1)
@@ -11975,7 +11975,7 @@
 		)
 	)
 	(symbol
-		(lib_id "intuitiv:AP6212")
+		(lib_id "ignuvi:AP6212")
 		(at 250.19 66.04 0)
 		(unit 1)
 		(body_style 1)
@@ -12282,7 +12282,7 @@
 		)
 	)
 	(symbol
-		(lib_id "intuitiv:ATSAMR21E18A")
+		(lib_id "ignuvi:ATSAMR21E18A")
 		(at 43.18 71.12 0)
 		(unit 1)
 		(body_style 1)

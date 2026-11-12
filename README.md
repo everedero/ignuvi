@@ -1,4 +1,4 @@
-# Intuitiv
+# Ignuvi
 
 Zephyr support for a pilot-wire heater gateway, a
 board built around an STM32F412RG (LQFP64).
@@ -123,7 +123,7 @@ PC0 lets firmware check what actually came out.
 HSE 26 MHz → PLL (M=13, N=96, P=2, Q=4) → 96 MHz SYSCLK, 48 MHz PLLQ.
 The crystal frequency is inferred from its marking. If blinky runs at the wrong rate or not at
 all, switch the PLL source to `&clk_hsi` (16 MHz) with `div-m = <8>` in
-`boards/vendor/intuitiv/intuitiv.dts`.
+`boards/vendor/ignuvi/ignuvi.dts`.
 
 ### Bottom test pads
 <!--
@@ -182,7 +182,7 @@ but no testpoint. The way to reflash the board is to use BOOT0 instead.
 This way, every reset then starts the ST ROM bootloader, where SWD always works.
 
 `west flash` (openocd runner, the default) resets into the
-bootloader, writes the flash, then starts the image from its vector table (`intuitiv_run_app` in
+bootloader, writes the flash, then starts the image from its vector table (`ignuvi_run_app` in
 `support/openocd.cfg`).
 
 Once the firmware is all done, remove the BOOT0 wire to boot the image standalone.
@@ -198,12 +198,12 @@ It means the stock firmware cannot be read out or backed up first.
 3. Check the protection level (RDP byte = bits 15:8 of `FLASH_OPTCR`; `0x55` = level 1,
    `0xAA` = level 0):
    ```bash
-   openocd -f boards/vendor/intuitiv/support/openocd.cfg \
+   openocd -f boards/vendor/ignuvi/support/openocd.cfg \
        -c 'init' -c 'halt' -c 'mdw 0x40023C14' -c 'shutdown'
    ```
 4. Set RDP level 0 (mass erase), then power-cycle:
    ```bash
-   openocd -f boards/vendor/intuitiv/support/openocd.cfg \
+   openocd -f boards/vendor/ignuvi/support/openocd.cfg \
        -c 'init' -c 'halt' -c 'stm32f2x unlock 0' -c 'shutdown'
    ```
    `mdw 0x40023C14` should now read `0x0FFFAAED`.
@@ -220,9 +220,9 @@ Later flashes only need step 5.
 ```bash
 cd zephyr_workspace
 source ~/zephyrproject/.venv/bin/activate   # Zephyr 4.5 needs Python >= 3.12
-west config manifest.path intuitiv && west update
+west config manifest.path ignuvi && west update
 # ZEPHYR_BASE must be absolute: a relative one is resolved from the sample dir
-ZEPHYR_BASE=$PWD/zephyr west build -p -b intuitiv zephyr/samples/basic/blinky \
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi zephyr/samples/basic/blinky \
     -- -DPython3_EXECUTABLE=$(which python3)
 # console over USB instead of the PB6 UART: add -S cdc-acm-console
 west flash   # openocd over SWD (default), or --runner stm32cubeprogrammer
@@ -238,28 +238,28 @@ advertising start and stop (needs the untracked HCD, see Bluetooth).
 
 ```bash
 # on the board (bench 3.3 V, never on mains). west flash starts the app after the flash
-ZEPHYR_BASE=$PWD/zephyr west twister -T intuitiv/tests/board -p intuitiv --device-testing \
+ZEPHYR_BASE=$PWD/zephyr west twister -T ignuvi/tests/board -p ignuvi --device-testing \
     --device-serial /dev/ttyACM0 --device-serial-baud 2000000 --retry-failed 2 -j 1
 # without the board
-ZEPHYR_BASE=$PWD/zephyr west twister -T intuitiv/tests/board -p native_sim/native/intuitiv
+ZEPHYR_BASE=$PWD/zephyr west twister -T ignuvi/tests/board -p native_sim/native/ignuvi
 ```
 
 **CI:** `scripts/ci.sh [commit range]` (default `HEAD~1..HEAD`) runs the Zephyr compliance
-checks that apply here, then twister on `intuitiv` (build only) and `native_sim/native/intuitiv`
+checks that apply here, then twister on `ignuvi` (build only) and `native_sim/native/ignuvi`
 (built and run). It needs the west workspace and its Python env. `HW=1` also runs the tests on the
 board, and results go to `../ci-out`. Checkpatch, clang-format and ruff use Zephyr's settings
 (`.checkpatch.conf`, `.clang-format`, `.ruff.toml`). The excluded checks, and why, are listed in
 the script. Without the untracked HCD, the Bluetooth scenario (tag `hcd`) is skipped.
 
 **Release:** pushing a `v*` tag (`git tag v1.0 && git push origin v1.0`) runs
-`.github/workflows/release.yml`. It fetches the HCD, builds `apps/pilot_wire` for `intuitiv`, and
+`.github/workflows/release.yml`. It fetches the HCD, builds `apps/pilot_wire` for `ignuvi`, and
 attaches `pilot_wire-<tag>.bin` and `.elf` to a GitHub release.
 
-`native_sim/native/intuitiv` (`boards/native/intuitiv`) extends `native_sim` with the board's
+`native_sim/native/ignuvi` (`boards/native/ignuvi`) extends `native_sim` with the board's
 devicetree labels and aliases: LEDs `led0`–`led2` (active low) and buttons `sw0`/`sw1` on the
 emulated GPIO, the pilot-wire GPIOs, and `spi_flash` as an 8 MiB flash simulator holding the
 settings partition. There the button test presses the buttons through the GPIO emulator, and
-the JEDEC test is skipped. Apps with board-only options keep them in `boards/intuitiv.conf`
+the JEDEC test is skipped. Apps with board-only options keep them in `boards/ignuvi.conf`
 (AIROC in `apps/pilot_wire`).
 
 ## Settings
@@ -276,10 +276,10 @@ H4 driver. It needs the AP6212 (non-A) patchram: the CYW43438 / BCM43430A1 patch
 Raspberry Pi) download fine but hang the controller at launch. The patch is not committed:
 
 ```bash
-curl -L -o intuitiv/apps/bluetooth/bcm43438a0.hcd \
+curl -L -o ignuvi/apps/bluetooth/bcm43438a0.hcd \
     https://raw.githubusercontent.com/armbian/firmware/master/ap6212/bcm43438a0.hcd
-ZEPHYR_BASE=$PWD/zephyr west build -p -b intuitiv zephyr/samples/bluetooth/peripheral -- \
-    -DEXTRA_CONF_FILE=$PWD/intuitiv/apps/bluetooth/intuitiv.conf \
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi zephyr/samples/bluetooth/peripheral -- \
+    -DEXTRA_CONF_FILE=$PWD/ignuvi/apps/bluetooth/ignuvi.conf \
     -DPython3_EXECUTABLE=$(which python3)
 west flash
 bluetoothctl --timeout 15 scan on   # "Zephyr Peripheral Sample Long"
@@ -297,7 +297,7 @@ before deploying several.
 
 `apps/pilot_wire` drives the pilot-wire output from one custom GATT service. No SIG profile
 covers heater modes, so Home Assistant gets a small custom integration
-(`homeassistant/custom_components/intuitiv_pilot_wire`) that shows the board as a climate entity.
+(`homeassistant/custom_components/ignuvi_pilot_wire`) that shows the board as a climate entity.
 
 | UUID | Characteristic | Format | Access |
 | --- | --- | --- | --- |
@@ -305,7 +305,7 @@ covers heater modes, so Home Assistant gets a small custom integration
 | `6f1e0002-5b2c-4d8a-9c3e-2a7b41c0d5e1` | Mode | uint8: 0 Confort, 1 Éco, 2 Hors-gel, 3 Arrêt, 4 Confort −1, 5 Confort −2 | read; write and notify need an encrypted (bonded) link |
 
 The board also has the Device Information Service. The mode is saved in the settings
-(`pw/mode`), and Confort is the default. Advertising, as `Intuitiv`, restarts after every
+(`pw/mode`), and Confort is the default. Advertising, as `Ignuvi`, restarts after every
 disconnect.
 
 **Pairing** follows the GAP modes. Just Works, which needs no console.
@@ -327,7 +327,7 @@ the button again.
 
 **Known issue: pairing mode without advertising.** Seen when moving the board to a new HA
 host: the blue LED blinks, but the board keeps its normal advertising (`02 01 04`, no UUID, no
-name) or goes silent, so HA reports "No Intuitiv found over Bluetooth". The erase button does
+name) or goes silent, so HA reports "No Ignuvi found over Bluetooth". The erase button does
 not help. Workaround: power-cycle the heater (board included) for a few seconds, then hold the
 button again. Not root-caused: the LED starts blinking before advertising does, so a failing
 `bt_le_adv_start()` (only logged as `advertising failed`) and a link that never went down
@@ -343,14 +343,14 @@ build with `-DCONFIG_PILOT_WIRE_INVERT_POLARITY=y`.
 ```bash
 # bench, no mains: a 10 ms timer replaces the zero-cross, and the enabled half-waves
 # are logged every 10 s (Éco +500 -500, Hors-gel +0 -500, Arrêt +500 -0)
-ZEPHYR_BASE=$PWD/zephyr west build -p -b intuitiv intuitiv/apps/pilot_wire -- \
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi ignuvi/apps/pilot_wire -- \
     -DCONFIG_PILOT_WIRE_SIM_ZC=y -DPython3_EXECUTABLE=$(which python3)
 west flash
 # order logic unit test
-ZEPHYR_BASE=$PWD/zephyr west twister -T intuitiv/apps/pilot_wire/tests -p native_sim
+ZEPHYR_BASE=$PWD/zephyr west twister -T ignuvi/apps/pilot_wire/tests -p native_sim
 ```
 
-**On native_sim**, without the board: `native_sim/native/intuitiv` (below) runs the whole app,
+**On native_sim**, without the board: `native_sim/native/ignuvi` (below) runs the whole app,
 with a [bumble](https://github.com/google/bumble) virtual controller in place of the AP6212.
 `sim/run.sh` starts two linked bumble controllers, the app on one (`--bt-dev=127.0.0.1:9000`),
 and `sim/central.py` on the other. The central pairs in pairing mode (AD flags 0x05), writes a
@@ -358,9 +358,9 @@ mode, then reconnects with the bond through the non-discoverable advertising (fl
 
 ```bash
 python3 -m venv ~/bumble && ~/bumble/bin/pip install bumble
-ZEPHYR_BASE=$PWD/zephyr west build -p -b native_sim/native/intuitiv intuitiv/apps/pilot_wire -- \
+ZEPHYR_BASE=$PWD/zephyr west build -p -b native_sim/native/ignuvi ignuvi/apps/pilot_wire -- \
     -DCONFIG_PILOT_WIRE_SIM_ZC=y -DPython3_EXECUTABLE=$(which python3)
-BUMBLE_PY=~/bumble/bin/python intuitiv/apps/pilot_wire/sim/run.sh build/zephyr/zephyr.exe   # PASS
+BUMBLE_PY=~/bumble/bin/python ignuvi/apps/pilot_wire/sim/run.sh build/zephyr/zephyr.exe   # PASS
 ```
 
 ### Home Assistant (docker)
@@ -373,7 +373,7 @@ Then pair once from the host, in pairing mode, with bluetoothctl's own agent. Bl
 bluetoothctl
   agent NoInputNoOutput
   default-agent
-  scan le                     # wait for Intuitiv, then: scan off
+  scan le                     # wait for Ignuvi, then: scan off
   pair 43:43:A0:12:1F:AC
   trust 43:43:A0:12:1F:AC
 ```
@@ -385,10 +385,10 @@ Install the integration. `/home/eve` is ecryptfs, and the docker daemon sees the
 the mount, not the one in `~/homeassistant`, so copy through the container:
 
 ```bash
-cd intuitiv/homeassistant/custom_components
+cd ignuvi/homeassistant/custom_components
 docker exec homeassistant mkdir -p /config/custom_components
-tar cf - intuitiv_pilot_wire | docker exec -i homeassistant tar xf - -C /config/custom_components
-docker exec homeassistant python3 /config/custom_components/intuitiv_pilot_wire/selftest.py
+tar cf - ignuvi_pilot_wire | docker exec -i homeassistant tar xf - -C /config/custom_components
+docker exec homeassistant python3 /config/custom_components/ignuvi_pilot_wire/selftest.py
 docker restart homeassistant
 ```
 
@@ -403,7 +403,7 @@ docker run -d --name homeassistant --restart unless-stopped --network host \
     ghcr.io/home-assistant/home-assistant:2026.1
 ```
 
-HA then discovers "Intuitiv" from its service UUID (Settings → Devices & services). The
+HA then discovers "Ignuvi" from its service UUID (Settings → Devices & services). The
 climate entity has `heat` / `off` (off = Arrêt), plus the presets Confort, Éco, Hors-gel (`away`),
 Confort −1 and Confort −2. It reconnects when the board advertises again.
 
@@ -459,19 +459,19 @@ firmware, an NVRAM and an encrypted blob.
 
 ```bash
 # once per checkout: WHD patch (hal_infineon), see zephyr/patches.yml
-west patch -sm intuitiv apply
-ZEPHYR_BASE=$PWD/zephyr west build -p -b intuitiv intuitiv/apps/spi_dump -- \
+west patch -sm ignuvi apply
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi ignuvi/apps/spi_dump -- \
     -DPython3_EXECUTABLE=$(which python3)
 west flash
-cd intuitiv/apps/spi_dump && python dump.py /dev/ttyACM0 out/spi_flash.bin &  # ~70 s, needs pyserial
+cd ignuvi/apps/spi_dump && python dump.py /dev/ttyACM0 out/spi_flash.bin &  # ~70 s, needs pyserial
 # start the app (BOOT0 is strapped high, see Flashing below), then once dump.py is done:
 dd if=out/spi_flash.bin of=../wifi/fw/43430a0-7.45.96.88.bin \
     iflag=skip_bytes,count_bytes skip=$((0x13001c)) count=434400
 cd -
-curl -L -o intuitiv/apps/wifi/fw/nvram_ap6212.txt \
+curl -L -o ignuvi/apps/wifi/fw/nvram_ap6212.txt \
     https://raw.githubusercontent.com/armbian/firmware/master/ap6212/nvram.txt
-ZEPHYR_BASE=$PWD/zephyr west build -p -b intuitiv intuitiv/apps/wifi -- \
-    -DCONFIG_INTUITIV_WIFI_SSID='"myssid"' -DCONFIG_INTUITIV_WIFI_PSK='"mypsk"' \
+ZEPHYR_BASE=$PWD/zephyr west build -p -b ignuvi ignuvi/apps/wifi -- \
+    -DCONFIG_IGNUVI_WIFI_SSID='"myssid"' -DCONFIG_IGNUVI_WIFI_PSK='"mypsk"' \
     -DPython3_EXECUTABLE=$(which python3)
 west flash
 ```
@@ -483,7 +483,7 @@ heap is for the vendor driver only.
 
 On the bench, the 7.45.96.88 firmware loads with its built-in CLM (so the CLM blob stays
 empty) and the MAC is read from the chip. The scan lists the nearby networks, and a WPA2-PSK
-join plus DHCP work. Set `CONFIG_INTUITIV_WIFI_FW="fw/brcmfmac43430a0-sdio.bin"` to use the Linux
+join plus DHCP work. Set `CONFIG_IGNUVI_WIFI_FW="fw/brcmfmac43430a0-sdio.bin"` to use the Linux
 image instead (open networks only).
 
 The patch in `zephyr/patches/hal_infineon` makes WHD accept firmware without the `mfp` iovar
@@ -494,13 +494,13 @@ corrupted an image once (one extra word, the rest shifted), so the board crashed
 Verify after a flash:
 
 ```bash
-openocd -s intuitiv/boards/vendor/intuitiv/support -f intuitiv/boards/vendor/intuitiv/support/openocd.cfg \
-    -c init -c "reset halt" -c "verify_image build/zephyr/zephyr.hex" -c intuitiv_run_app
+openocd -s ignuvi/boards/vendor/ignuvi/support -f ignuvi/boards/vendor/ignuvi/support/openocd.cfg \
+    -c init -c "reset halt" -c "verify_image build/zephyr/zephyr.hex" -c ignuvi_run_app
 ```
 
 ## Home Assistant integration
 
-Copy `custom_components/intuitiv_pilot_wire/` to `/config/custom_components/` on
+Copy `custom_components/ignuvi_pilot_wire/` to `/config/custom_components/` on
 Home Assistant machine, then restart it
 
 Hold the board's middle button 3 s (blue LED blinks): the module will appear on Home
@@ -517,22 +517,22 @@ Add this (replace the names for your module and your thermal sensor):
 ```bash
 template:
   - switch:
-      - name: Intuitiv heater
-        unique_id: intuitiv_1f_ac_heater
-        state: "{{ is_state('climate.intuitiv_1f_ac', 'heat') and is_state_attr('climate.intuitiv_1f_ac', 'preset_mode', 'comfort') }}"
+      - name: Ignuvi heater
+        unique_id: ignuvi_1f_ac_heater
+        state: "{{ is_state('climate.ignuvi_1f_ac', 'heat') and is_state_attr('climate.ignuvi_1f_ac', 'preset_mode', 'comfort') }}"
         turn_on:
           - action: climate.set_preset_mode
-            target: { entity_id: climate.intuitiv_1f_ac }
+            target: { entity_id: climate.ignuvi_1f_ac }
             data: { preset_mode: comfort }
         turn_off:
           - action: climate.turn_off
-            target: { entity_id: climate.intuitiv_1f_ac }
+            target: { entity_id: climate.ignuvi_1f_ac }
 
 climate:
   - platform: generic_thermostat
-    name: Intuitiv 1F AC thermostat
-    unique_id: intuitiv_1f_ac_thermostat
-    heater: switch.intuitiv_1f_ac_heater
+    name: Ignuvi 1F AC thermostat
+    unique_id: ignuvi_1f_ac_thermostat
+    heater: switch.ignuvi_1f_ac_heater
     target_sensor: sensor.coffeecaller_73e9_temperature
     target_temp: 20
     cold_tolerance: 0.3
@@ -544,14 +544,14 @@ For Pi, for instance, install the SSH server add-on module.
 
 ```
 ssh root@homeassistant.local 'mkdir -p /config/custom_components'
-scp -r ~/homeassistant/custom_components/intuitiv_pilot_wire root@homeassistant.local:/config/custom_components/
+scp -r ~/homeassistant/custom_components/ignuvi_pilot_wire root@homeassistant.local:/config/custom_components/
 ```
 
 If you want to create a schedule.
 Go to Settings -> Automations -> Create automation -> ⋮ -> Edit in YAML and paste:
 
 ```
-alias: Intuitiv 1F AC off during the day
+alias: Ignuvi 1F AC off during the day
 triggers:
   - trigger: time
     at: "08:00:00"
@@ -562,7 +562,7 @@ triggers:
 actions:
   - action: climate.set_hvac_mode
     target:
-      entity_id: climate.intuitiv_1f_ac_thermostat
+      entity_id: climate.ignuvi_1f_ac_thermostat
     data:
       hvac_mode: "{{ trigger.id }}"
 mode: single

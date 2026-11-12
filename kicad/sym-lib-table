@@ -1,4 +1,4 @@
 (sym_lib_table
   (version 7)
-  (lib (name "intuitiv")(type "KiCad")(uri "${KIPRJMOD}/intuitiv.kicad_sym")(options "")(descr "Intuitiv board parts"))
+  (lib (name "ignuvi")(type "KiCad")(uri "${KIPRJMOD}/ignuvi.kicad_sym")(options "")(descr "Ignuvi board parts"))
 )

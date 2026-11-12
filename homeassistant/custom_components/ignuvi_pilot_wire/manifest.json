@@ -1,6 +1,6 @@
 {
-  "domain": "intuitiv_pilot_wire",
-  "name": "Intuitiv pilot wire",
+  "domain": "ignuvi_pilot_wire",
+  "name": "Ignuvi pilot wire",
   "bluetooth": [
     {
       "service_uuid": "6f1e0001-5b2c-4d8a-9c3e-2a7b41c0d5e1",

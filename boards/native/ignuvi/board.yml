@@ -1,5 +1,5 @@
 board:
   extend: native_sim
   variants:
-    - name: intuitiv
+    - name: ignuvi
       qualifier: native

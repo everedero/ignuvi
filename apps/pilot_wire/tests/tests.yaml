@@ -2,6 +2,6 @@ tests:
   pilot_wire.logic:
     platform_allow:
       - native_sim
-      - native_sim/native/intuitiv
+      - native_sim/native/ignuvi
     integration_platforms:
-      - native_sim/native/intuitiv
+      - native_sim/native/ignuvi

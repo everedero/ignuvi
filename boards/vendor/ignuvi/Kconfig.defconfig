@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-if BOARD_INTUITIV
+if BOARD_IGNUVI
 
 # Settings backend: NVS on the SPI NOR storage_partition
 config FLASH
@@ -20,4 +20,4 @@ config SPI_NOR_FLASH_LAYOUT_PAGE_SIZE
 config SETTINGS_NVS_SECTOR_COUNT
 	default 16
 
-endif # BOARD_INTUITIV
+endif # BOARD_IGNUVI

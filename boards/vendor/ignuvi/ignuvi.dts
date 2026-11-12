@@ -9,8 +9,8 @@
 #include <zephyr/dt-bindings/pwm/pwm.h>
 
 / {
-	model = "Intuitiv pilot-wire gateway";
-	compatible = "vendor,intuitiv";
+	model = "Ignuvi pilot-wire gateway";
+	compatible = "vendor,ignuvi";
 
 	chosen {
 		zephyr,sram = &sram0;
@@ -210,7 +210,7 @@ zephyr_udc0: &usbotg_fs {
 
 /*
  * AP6212 Wi-Fi on the SDIO peripheral. The upstream st,stm32-sdmmc driver is
- * for SD cards only, so this uses the intuitiv module's SDIO host driver.
+ * for SD cards only, so this uses the ignuvi module's SDIO host driver.
  * WL_REG_ON is PB12 (found by toggling free pins); WL_HOST_WAKE is not routed,
  * so card interrupts come in-band on DAT1. 12 MHz max: polled FIFO.
  */

@@ -1,4 +1,4 @@
-"""Intuitiv pilot-wire heater over Bluetooth LE."""
+"""Ignuvi pilot-wire heater over Bluetooth LE."""
 
 from __future__ import annotations
 
@@ -111,7 +111,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         # Advertising restarts after every disconnect: reconnect on it
         if not pw.connected:
             entry.async_create_background_task(
-                hass, _reconnect(info.device), f"intuitiv reconnect {address}"
+                hass, _reconnect(info.device), f"ignuvi reconnect {address}"
             )
 
     async def _reconnect(dev: BLEDevice) -> None:

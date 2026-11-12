@@ -16,8 +16,8 @@ from homeassistant.const import CONF_ADDRESS
 from .const import DOMAIN, SERVICE_UUID
 
 
-class IntuitivConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Add one Intuitiv board."""
+class IgnuviConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Add one Ignuvi board."""
 
     VERSION = 1
 
@@ -68,7 +68,7 @@ class IntuitivConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
     def _title(self) -> str:
-        return f"{self._discovery.name or 'Intuitiv'} {self._discovery.address[-5:]}"
+        return f"{self._discovery.name or 'Ignuvi'} {self._discovery.address[-5:]}"
 
     def _create(self) -> ConfigFlowResult:
         # A discovery flow left on its confirm step must not duplicate an entry

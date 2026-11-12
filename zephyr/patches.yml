@@ -1,4 +1,4 @@
-# Applied with: west patch -sm intuitiv apply
+# Applied with: west patch -sm ignuvi apply
 patches:
   - path: hal_infineon/0001-whd-mfp-get-unsupported.patch
     sha256sum: 3b4c96a971d7045f0f570161c3cec74e5566bdafb935985f4643c9647859f345

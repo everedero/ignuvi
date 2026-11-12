@@ -1,18 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
-config INTUITIV_WIFI_FW
+config IGNUVI_WIFI_FW
 	string "Wi-Fi firmware image, relative to the app"
 	default "fw/43430a0-7.45.96.88.bin"
 
-config INTUITIV_WIFI_NVRAM
+config IGNUVI_WIFI_NVRAM
 	string "Wi-Fi NVRAM text, relative to the app"
 	default "fw/nvram_ap6212.txt"
 
-config INTUITIV_WIFI_SSID
+config IGNUVI_WIFI_SSID
 	string "Network to join after the scan (empty: scan only)"
 	default ""
 
-config INTUITIV_WIFI_PSK
+config IGNUVI_WIFI_PSK
 	string "WPA2 passphrase"
 	default ""
 

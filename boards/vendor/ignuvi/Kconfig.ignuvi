@@ -1,4 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
-config BOARD_INTUITIV
+config BOARD_IGNUVI
 	select SOC_STM32F412RX
